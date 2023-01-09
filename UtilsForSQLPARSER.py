@@ -3,7 +3,7 @@ create table as select * from b,c where
 
 '''
 import re
-
+from Log import logger
 
 global AllUsedTables;
 
@@ -43,11 +43,14 @@ def parseSQLCreateTableAs(sql=[]):
         #采用逗号
         print("没有采用JOIN连接,把FROM后的表名摘入清单")
         #判断是否是多表
-        compilerx=re.compile(r"(.*,\(?)+")
+        compilerx=re.compile(r"(\s|\n)?[^\s]+(\s)+[^\s]+,")
         if re.match(compilerx,result1):
             pass
             #符合多,表名特点
-            print("多表名")
+            print("多表名逗号关联操作")
+            for splitsql in result1.split(","):
+                #print(splitsql)
+                AllUsedTables.append([x for x in re.split(r'(\t|\n|\s|\r)', splitsql) if x != ' ' and x != ''][0])
         else:
             pass
             print("只用了一个表名")

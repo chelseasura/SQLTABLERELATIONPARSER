@@ -5,10 +5,9 @@ import copy
 import os
 import re
 import traceback
-
 import chardet
-
 from UtilsForSQLPARSER import parseSQLCreateTableAs
+from Log import logger
 
 sqllineArr=[];  # 所有SQL语句放入数组中
 
@@ -22,14 +21,16 @@ def get_encoding(file):
 
 def walkpythonfiles(filepath=""):
     pass
-    print("开始在指定目录下进行文件目录{path}解析...".format(path=filepath))
+    logger.info("开始在指定目录下进行文件目录{path}下解析...".format(path=filepath))
     walkpath = filepath
     regex_start = re.compile("^.*sql$")
     for file in os.listdir(walkpath):
         m = regex_start.findall(file)
         if m is not None and len(m) != 0:
+            logger.debug(str(m))
             splitFileIntoSqlArray(sqlfile=m[0],thefilepath=filepath)
     for arr in sqllineArr:
+        logger.debug("开始对每一个SQL语句进行解析...")
         parseSQLLine(sqlline=arr)
 
 '''
@@ -38,16 +39,15 @@ def walkpythonfiles(filepath=""):
 def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
     allwords=[]
     file=None
-    print("读取脚本{file}".format(file=sqlfile))
-    print(thefilepath)
+    logger.info("读取脚本{file}".format(file=sqlfile))
+    logger.info(thefilepath)
     try:
         filepath = thefilepath+"/"+sqlfile
         filecoding = get_encoding(file=filepath)
-        print("原始文件采用编码", filecoding)
+        logger.info("原始文件采用编码{format}".format(format=filecoding))
         count = len(open(filepath, 'r', encoding=filecoding, errors="ignore").readlines())
         # 文本解析到具体的单词列表
         file = open(filepath, "r+", encoding=filecoding, errors="ignore")
-
         # 逐行逐个单词解读文本
         for index, line in enumerate(file.readlines()):
             if not re.match(r"^--|^#",line):
@@ -57,6 +57,7 @@ def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
                        pass
                        allwords.append(words)
         #print(allwords)
+        logger.debug(allwords)
         linewords=[]
         for words in allwords:
             linewords.append(words)
@@ -65,7 +66,8 @@ def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
                 #如上单词应该压入数据内容中
                 sqllineArr.append(copy.deepcopy(linewords))
                 linewords=[]
-        #print(sqllineArr)
+        logger.debug("打印出所有的SQL语句数组")
+        logger(sqllineArr)
     except Exception as e:
         #把错误文件写到日志中
         msg = traceback.format_exc() # 方式1
@@ -83,13 +85,13 @@ AS SELECT  FROM WHERE
 '''
 def parseSQLLine(sqlline=[]):
     pass
-    print("开始对语句{query}解析......".format(query=sqlline))
+    logger.info("开始对语句{query}解析......".format(query=sqlline))
     if re.match(r"\s?create\s?table\s?.*as.*","".join(sqlline),re.IGNORECASE):
         pass
-        print("探测到这个语句是一个利用建表语法处理数据的SQL")
+        logger.info("探测到这个语句是一个利用建表语法处理数据的SQL")
         parseSQLCreateTableAs(sql=sqlline)
     else:
-        print("当前SQL语句没有被匹配到......")
+        logger.info("当前SQL语句没有被匹配到......")
 
 
 
