@@ -5,11 +5,12 @@ from FileTools import walkpythonfiles
 if __name__ == '__main__':
     usage = '''
     这是一个通过解读SQL文件并生成对应的表直接的依赖关系的工具
-    usage: -p <path_name> [-u <username>]  
+    usage: -p <path_name> [-u <username> -log <info> ]  
     '''
     parser = OptionParser(usage)
 
     parser.add_option("-p", "--path_name", dest="path_name", help="输入需要解析对应的目录")
+    parser.add_option("--log", "--log", dest="info", help="按照输入参数调整日志级别")
     (options, args) = parser.parse_args()
 
     if options.path_name :

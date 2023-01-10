@@ -29,9 +29,8 @@ def walkpythonfiles(filepath=""):
         if m is not None and len(m) != 0:
             logger.debug(str(m))
             splitFileIntoSqlArray(sqlfile=m[0],thefilepath=filepath)
-    for arr in sqllineArr:
-        logger.debug("开始对每一个SQL语句进行解析...")
-        parseSQLLine(sqlline=arr)
+    for theobject in sqllineArr:
+        parseSQLLine(sqlline=theobject['sqlline'],sqlfile=theobject['sqlfile'])
 
 '''
 读取对应的SQL文件按照;结束符号把每一个语句塞入数据列表中
@@ -51,12 +50,9 @@ def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
         # 逐行逐个单词解读文本
         for index, line in enumerate(file.readlines()):
             if not re.match(r"^--|^#",line):
-                pass
-                for words in [x for x in re.split(r'(\t|\n|\s|\r)', line) if x]:
-                    if re.search(r"[a-zA-Z0-9;,\?\*]", words, re.IGNORECASE)  :
-                       pass
+                for words in [x for x in re.split(r'(\t|\n|\s|\r)', line) if x != " " or x !=""]:
+                    if re.search(r"[a-zA-Z0-9;,\?\*]", words, re.IGNORECASE):
                        allwords.append(words)
-        #print(allwords)
         logger.debug(allwords)
         linewords=[]
         for words in allwords:
@@ -64,10 +60,13 @@ def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
             if ";" in words:
                 pass
                 #如上单词应该压入数据内容中
-                sqllineArr.append(copy.deepcopy(linewords))
+                dictobject={}
+                dictobject['sqlline']=copy.deepcopy(linewords)
+                dictobject['sqlfile']=filepath
+                sqllineArr.append(dictobject)
                 linewords=[]
         logger.debug("打印出所有的SQL语句数组")
-        logger(sqllineArr)
+        logger.debug(sqllineArr)
     except Exception as e:
         #把错误文件写到日志中
         msg = traceback.format_exc() # 方式1
@@ -83,13 +82,13 @@ CREATE TABLE CREATE VIEW
 INSERT INTO MERGE INTO 
 AS SELECT  FROM WHERE  
 '''
-def parseSQLLine(sqlline=[]):
+def parseSQLLine(sqlline=[],sqlfile=""):
     pass
     logger.info("开始对语句{query}解析......".format(query=sqlline))
     if re.match(r"\s?create\s?table\s?.*as.*","".join(sqlline),re.IGNORECASE):
         pass
         logger.info("探测到这个语句是一个利用建表语法处理数据的SQL")
-        parseSQLCreateTableAs(sql=sqlline)
+        parseSQLCreateTableAs(sql=sqlline,sqlfile=sqlfile)
     else:
         logger.info("当前SQL语句没有被匹配到......")
 
