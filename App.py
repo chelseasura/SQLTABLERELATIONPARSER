@@ -1,7 +1,7 @@
 from optparse import OptionParser
 
 from FileTools import walkpythonfiles
-
+from Log import logger
 if __name__ == '__main__':
     usage = '''
     这是一个通过解读SQL文件并生成对应的表直接的依赖关系的工具
@@ -15,8 +15,8 @@ if __name__ == '__main__':
 
     if options.path_name :
         # do something
-        print("开始解析当前目录{path}下的所有SQL文件,并构建完整的表关系结构图".format(path=options.path_name))
+        logger.info("开始解析当前目录{path}下的所有SQL文件,并构建完整的表关系结构图".format(path=options.path_name))
         walkpythonfiles(filepath=options.path_name)
     else:
-        print("请输入完整的程序运行参数")
+        logger.info("请输入完整的程序运行参数")
         print(usage)

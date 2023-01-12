@@ -4,14 +4,35 @@ create table as select * from b,c where
 '''
 import re
 from Log import logger
+from TableRelations import TableRelations
 
-global AllUsedTables;
+global AllUsedTables,AllTableDict;
 
 #全量使用的数据表清单
 AllUsedTables=[]
 
+#表和表关系以及SQL脚本的工具
+AllTableDict={}
+
+#脚本和里面有的表的关系
+scriptTables={}
+
+def parseSQLTruncate(sql=[],sqlfile=""):
+    global AllUsedTables
+    global AllTableDict
+    global scriptTables
+    logger.info("要处理的语句是{sql}".format(sql="".join(sql)))
+    result = re.sub(r"\s?truncate\s?table\s?", "", " ".join(sql), 0, re.IGNORECASE)
+    result2 = re.sub(r";", "", result, 0, re.IGNORECASE)
+    logger.info("获取的表名")
+    logger.info(result2)
+    AllUsedTables.append(result2)
+    putTableIntoScriptDict(tablenames=[].append(result2),sqlfile=sqlfile)
+
 def parseSQLCreateTableAs(sql=[],sqlfile=""):
     global AllUsedTables
+    global AllTableDict
+    global scriptTables
     pass
     #获取创建的表名
     result=re.sub(r"\s?create\s?table\s?",""," ".join(sql),0,re.IGNORECASE)
@@ -26,6 +47,23 @@ def parseSQLCreateTableAs(sql=[],sqlfile=""):
     #排重操作
     AllUsedTables=list(set(AllUsedTables))
     logger.info(AllUsedTables)
+    logger.info("开始组建对应的数据结构")
+    tableRelations= TableRelations();
+    tableRelations.tableName=result2
+    tableRelations.tableFroms=list(set(fromtables))
+    tableRelations.scriptFiles=sqlfile
+    logger.info("记录的结构如下")
+    logger.info(tableRelations.tableFroms)
+
+    #按照表名字存贮关系字典
+    if result2 in AllTableDict.keys():
+        logger.error("探测到相同表名重复创建在不同的脚本中")
+    else:
+        AllTableDict[result2] = tableRelations
+
+    putTableIntoScriptDict(tablenames=list(set(fromtables)).append(result2), sqlfile=sqlfile)
+
+
 
 
 def countNumOfItem(theitem,arr):
@@ -37,6 +75,22 @@ def countNumOfItem(theitem,arr):
 
 def detachFromTableNameFromSubQuery(sqlline):
     pass
+
+def putTableIntoScriptDict(tablenames=[],sqlfile=""):
+    global scriptTables
+    pass
+    #按照SQL文件名存储用到的表
+    sqlfilename=sqlfile.split("/")[-1].split(".")[0]
+    logger.info(sqlfilename)
+    if sqlfilename in scriptTables.keys() and scriptTables[sqlfilename]!=None:
+        logger.info("脚本已经有对应的字典")
+        logger.info(scriptTables)
+        logger.info(scriptTables[sqlfilename])
+        logger.info(tablenames)
+        scriptTables[sqlfilename]=scriptTables[sqlfilename]+tablenames
+    else:
+        scriptTables[sqlfilename] = tablenames
+
 
 #把from 后的查询块解析写在一个方法内
 def detachFromAfter(sql=[]):

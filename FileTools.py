@@ -6,7 +6,7 @@ import os
 import re
 import traceback
 import chardet
-from UtilsForSQLPARSER import parseSQLCreateTableAs
+from UtilsForSQLPARSER import parseSQLCreateTableAs, parseSQLTruncate
 from Log import logger
 
 sqllineArr=[];  # 所有SQL语句放入数组中
@@ -89,8 +89,12 @@ def parseSQLLine(sqlline=[],sqlfile=""):
         pass
         logger.info("探测到这个语句是一个利用建表语法处理数据的SQL")
         parseSQLCreateTableAs(sql=sqlline,sqlfile=sqlfile)
+    if re.match(r"\s?truncate\s?table\s?.*","".join(sqlline),re.IGNORECASE):
+        pass
+        logger.info("探测到这个语句是truncate语句")
+        parseSQLTruncate(sql=sqlline,sqlfile=sqlfile)
     else:
-        logger.info("当前SQL语句没有被匹配到......")
+        logger.error("当前SQL语句没有被匹配到......")
 
 
 
