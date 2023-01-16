@@ -2,6 +2,8 @@ from optparse import OptionParser
 
 from FileTools import walkpythonfiles
 from Log import logger
+from drawGraph import draw
+
 if __name__ == '__main__':
     usage = '''
     这是一个通过解读SQL文件并生成对应的表直接的依赖关系的工具
@@ -20,3 +22,6 @@ if __name__ == '__main__':
     else:
         logger.info("请输入完整的程序运行参数")
         print(usage)
+
+    logger.info("开始绘制图形界面")
+    draw()
