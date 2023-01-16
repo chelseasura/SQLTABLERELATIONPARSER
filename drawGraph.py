@@ -16,23 +16,17 @@ def drawdemo():
             color="black", style="bold",label="使用SQL脚本") >>DbaasPrimary("web3")
 
 def draw():
-    pass
-
     with Diagram("表关系依赖图", show=False, outformat=["jpg", "png", "dot", "svg"]):
-        parentNode = DbaasStandby("Root")
+        parentNode = DbaasPrimary("Root")
         for rela in AllUsedTables:
             drawANode(tableName=rela,parentNode=parentNode)
 
 def drawANode(tableName="",parentNode=None):
-    pass
+    newNode = DbaasPrimary(tableName)
+    parentNode >> newNode
     if tableName in AllTableDict.keys():
-        logger.info("探测到表名存在于系统中")
-        if AllTableDict[tableName]:
-            for thetablename in AllTableDict[tableName].tableFroms:
-                pass
-                newNode=DbaasPrimary(tableName)
-                parentNode>>newNode
-                drawANode(tableName=thetablename,parentNode=newNode)
+        logger.info("探测到当前表名下有依赖的层级,开始按照来源逐一解析")
+        for thetablename in AllTableDict[tableName].tableFroms:
+            drawANode(tableName=thetablename, parentNode=newNode)
     else:
-        pass
-        DbaasPrimary(tableName)
+        logger.info("当前表已经到了根节点")

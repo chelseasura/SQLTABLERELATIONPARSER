@@ -2,6 +2,7 @@
 create table as select * from b,c where
 
 '''
+import logging
 import re
 from Log import logger
 from TableRelations import TableRelations
@@ -24,7 +25,7 @@ def parseSQLTruncate(sql=[],sqlfile=""):
     logger.info("要处理的语句是{sql}".format(sql="".join(sql)))
     result = re.sub(r"\s?truncate\s?table\s?", "", " ".join(sql), 0, re.IGNORECASE)
     result2 = re.sub(r";", "", result, 0, re.IGNORECASE)
-    logger.info("获取的表名")
+    logger.info("最终获取到的表名")
     logger.info(result2)
     AllUsedTables.append(result2)
     putTableIntoScriptDict(tablenames=[].append(result2),sqlfile=sqlfile)
@@ -46,14 +47,15 @@ def parseSQLCreateTableAs(sql=[],sqlfile=""):
     logger.info(fromtables)
     #排重操作
     AllUsedTables=list(set(AllUsedTables))
+    logging.info("记录截至目前用到的全量表名")
     logger.info(AllUsedTables)
     logger.info("开始组建对应的数据结构")
     tableRelations= TableRelations();
     tableRelations.tableName=result2
     tableRelations.tableFroms=list(set(fromtables))
     tableRelations.scriptFiles=sqlfile
-    logger.info("记录的结构如下")
-    logger.info(tableRelations.tableFroms)
+    logger.info("记录的结构如下:")
+    logger.info(tableRelations.to_str())
 
     #按照表名字存贮关系字典
     if result2 in AllTableDict.keys():
@@ -81,7 +83,7 @@ def putTableIntoScriptDict(tablenames=[],sqlfile=""):
     pass
     #按照SQL文件名存储用到的表
     sqlfilename=sqlfile.split("/")[-1].split(".")[0]
-    logger.info(sqlfilename)
+    logger.debug(sqlfilename)
     if sqlfilename in scriptTables.keys() and scriptTables[sqlfilename]!=None:
         logger.info("脚本已经有对应的字典")
         logger.info(scriptTables)
