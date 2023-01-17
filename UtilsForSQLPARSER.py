@@ -46,7 +46,7 @@ def parseSQLCreateTableAs(sql=[],sqlfile=""):
     logger.info("探测当前SQL用到的表:")
     logger.info(fromtables)
     #排重操作
-    AllUsedTables=list(set(AllUsedTables))
+    AllUsedTables.extend(list(set(AllUsedTables)))
     logging.info("记录截至目前用到的全量表名")
     logger.info(AllUsedTables)
     logger.info("开始组建对应的数据结构")
