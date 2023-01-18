@@ -29,10 +29,9 @@ class TreeStore:
     
     pathdict={}  #全局存储的所有表名和所在地址路径
 
-    def getInstance():
+    def getInstance(self):
         pass
         treestore=TreeStore()
-        
         rootNode=Node()
         rootNode.parentNode=None
         rootNode.NodePath="/Root"

@@ -1,6 +1,7 @@
 import random
 
 from diagrams import Diagram, Cluster, Edge
+from diagrams.programming.flowchart import  Delay,Database
 
 from diagrams.digitalocean.database import DbaasPrimaryStandbyMore, DbaasPrimary, DbaasReadOnly, DbaasStandby
 from UtilsForSQLPARSER import AllUsedTables,AllTableDict,scriptTables
@@ -19,29 +20,29 @@ NodeDict={}
 
 def draw():
     with Diagram("表关系依赖图", show=False, outformat=["jpg", "png", "dot", "svg"],direction="TB"):
-        parentNode = DbaasPrimary("Root")
+        parentNode = Database("Root")
         NodeDict['Root']=parentNode
         for index, rela in enumerate(AllUsedTables):
-            drawANode(tableName=rela, parentNode=parentNode)
+            drawANode(tableName=rela, parentNode=parentNode,sqlfile="")
 
 
-def drawANode(tableName="",parentNode=None,color="black"):
+def drawANode(tableName="",parentNode=None,color="black",sqlfile=""):
     theNode=None;
     if tableName in NodeDict.keys():
         theNode=NodeDict[tableName]
     else:
-        theNode = DbaasPrimary(tableName)
+        theNode = Database(tableName)
         if parentNode == NodeDict['Root']:
             parentNode - theNode
         else:
             parentNode <<Edge(
-            color=color)<<theNode
+            color=color,label=sqlfile.split("/")[-1])<<theNode
         NodeDict[tableName]=theNode
     if tableName in AllTableDict.keys():
         logger.info("探测到当前表名下有依赖的层级,开始按照来源逐一解析")
         thecolor = random_color()
         for thetablename in AllTableDict[tableName].tableFroms:
-            drawANode(tableName=thetablename, parentNode=theNode,color=thecolor)
+            drawANode(tableName=thetablename, parentNode=theNode,color=thecolor,sqlfile=AllTableDict[tableName].scriptFiles)
     else:
         logger.info("{atablename}当前表已经到了根节点".format(atablename=tableName))
 

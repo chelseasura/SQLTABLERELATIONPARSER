@@ -62,10 +62,26 @@ def parseSQLCreateTableAs(sql=[],sqlfile=""):
         logger.error("探测到相同表名重复创建在不同的脚本中")
     else:
         AllTableDict[result2] = tableRelations
+    alltablenames=list(set(fromtables))
+    alltablenames.append(result2)
+    putTableIntoScriptDict(tablenames=alltablenames, sqlfile=sqlfile)
 
-    putTableIntoScriptDict(tablenames=list(set(fromtables)).append(result2), sqlfile=sqlfile)
-
-
+def parseSQLDropTable(sql=[],sqlfile=""):
+    """parse SQLLINE with pattern drop table ....
+    :param sql: the words array of SQLLINE
+    :param sqlfile: SQLLINE IN SQLFILE
+    """
+    global AllUsedTables
+    global AllTableDict
+    global scriptTables
+    logger.info("开始处理drop table 语句")
+    result=re.sub(r"\s?drop\s?table\s?",""," ".join(sql),0,re.IGNORECASE)
+    result1=re.sub(r"\s?as.*","",result,0,re.IGNORECASE)
+    result2=re.sub(r";","",result1,0,re.IGNORECASE)
+    finaltablename=result2.split(" ")[0]
+    AllUsedTables.append(finaltablename)
+    logger.info("获取到的表名是{tablename}".format(tablename=finaltablename))
+    putTableIntoScriptDict(tablenames=[finaltablename], sqlfile=sqlfile)
 
 
 def countNumOfItem(theitem,arr):
