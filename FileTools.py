@@ -6,7 +6,7 @@ import os
 import re
 import traceback
 import chardet
-from UtilsForSQLPARSER import parseSQLCreateTableAs, parseSQLTruncate, parseSQLDropTable
+from UtilsForSQLPARSER import parseSQLCreateTableAs, parseSQLTruncate, parseSQLDropTable, parseSQLInsertInto
 from Log import logger
 
 sqllineArr=[];  # 所有SQL语句放入数组中
@@ -51,7 +51,7 @@ def splitFileIntoSqlArray(thefilepath="",sqlfile=None):
         for index, line in enumerate(file.readlines()):
             if not re.match(r"^--|^#",line):
                 for words in [x for x in re.split(r'(\t|\n|\s|\r)', line) if x != " " or x !=""]:
-                    if re.search(r"[a-zA-Z0-9;,\?\*]", words, re.IGNORECASE):
+                    if re.search(r"[a-zA-Z0-9;,\?\*\(\)]", words, re.IGNORECASE):
                        allwords.append(words)
         logger.debug(allwords)
         linewords=[]
@@ -96,6 +96,9 @@ def parseSQLLine(sqlline=[],sqlfile=""):
     elif re.match(r"\s?drop\s?table\s?.*","".join(sqlline),re.IGNORECASE):
         logger.info("探测到这个语句是drop table 语句")
         parseSQLDropTable(sql=sqlline,sqlfile=sqlfile)
+    elif re.match(r"\s?insert\s?into\s?.*","".join(sqlline),re.IGNORECASE):
+        logger.info("探测到这个语句是insert into 语句")
+        parseSQLInsertInto(sql=sqlline,sqlfile=sqlfile)
     else:
         logger.error("当前SQL语句没有被匹配到......")
 
