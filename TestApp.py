@@ -1,4 +1,5 @@
 import re
+import sys
 
 if __name__=="__main__":
     pass
@@ -23,20 +24,22 @@ insert into dqa_lszh_result_0715 (cust_id,actioncode,val1,val2,val3,accdate) sel
  '''
 
     #截取from后语句
-    sqlfrom="from".join(s5.split("from")[1:])
-    print(sqlfrom)
-    #并把from中的函数全部替换掉避免出现非必要的逗号
-    replacefuntion=re.sub(r"\w+\([^\)]*\)","thefuntion",sqlfrom,0,re.IGNORECASE)
-    print(replacefuntion)
-
-    if(re.match(r".*\([^\)]*\).*",replacefuntion,re.IGNORECASE)):
-        print("剩余的结果是字查询构成的")
-        subquery=re.findall(r".*\([^\)]*\)",replacefuntion,re.IGNORECASE)
-        theleft=re.sub(r".*\([^\)]*\).*,","",replacefuntion,0,re.IGNORECASE)
-        for line in subquery:
-            print(line)
-
-        theleft=re.sub(r"\s?where.*","",theleft,0,re.IGNORECASE)
-        print(theleft.split(" "))
+    # sqlfrom="from".join(s5.split("from")[1:])
+    # print(sqlfrom)
+    # #并把from中的函数全部替换掉避免出现非必要的逗号
+    # replacefuntion=re.sub(r"\w+\([^\)]*\)","thefuntion",sqlfrom,0,re.IGNORECASE)
+    # print(replacefuntion)
+    #
+    # if(re.match(r".*\([^\)]*\).*",replacefuntion,re.IGNORECASE)):
+    #     print("剩余的结果是字查询构成的")
+    #     subquery=re.findall(r".*\([^\)]*\)",replacefuntion,re.IGNORECASE)
+    #     theleft=re.sub(r".*\([^\)]*\).*,","",replacefuntion,0,re.IGNORECASE)
+    #     for line in subquery:
+    #         print(line)
+    #
+    #     theleft=re.sub(r"\s?where.*","",theleft,0,re.IGNORECASE)
+    #     print(theleft.split(" "))
+    print(sys.getrecursionlimit())
+    print(sys.setrecursionlimit(2000))
 
 
